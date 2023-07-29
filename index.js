@@ -26,10 +26,12 @@
         position: relative;
         width: 45vw;
         min-width: 400px;
-        height: 400px;
+        height: 500px;
         background-color: #fff;
         margin: 0 auto;
         padding: 20px;
+        display: flex;
+        flex-direction: column;
       }
 
       /* Tabs切换按钮样式 */
@@ -55,7 +57,8 @@
         flex: 1;
         flex-direction: column;
         overflow-y: auto;
-        margin-top:20px
+        margin-top:20px;
+        margin-bottom:20px
       }
 
       .tabContent.active {
@@ -116,7 +119,7 @@
       <tr>
         <th style="width: 100px;">星球名字</th>
         <th>展示</th>
-        <th>自动展开</th>
+        <th>自动展开内容</th>
         <th>显示通知数字</th>
         <th>隐藏置顶</th>
         <th>隐藏作业</th>
@@ -157,6 +160,10 @@
       ></path>
     </svg>
   </div>
+  <div style="display: flex; justify-content: flex-end">
+  <button class="tabButton" id="saveStar">保存</button>
+  <button class="tabButton cancelOverlay">取消</button>
+</div>
 </div>
 </div>
   `
@@ -165,8 +172,10 @@
   // 隐藏遮罩层
   const overlay = overlayDom.querySelector('#overlay')
   const closeDom = overlayDom.querySelector('.closeIcon')
+  const cancelDom = overlayDom.querySelector('.cancelOverlay')
   overlay.addEventListener('click', hideOverlay)
   closeDom.addEventListener('click', hideOverlay)
+  cancelDom.addEventListener('click', hideOverlay)
   function hideOverlay() {
     overlayDom.style.display = 'none'
   }
@@ -207,24 +216,158 @@
   waitForElm('.group-list').then(() => {
     handleTableData()
   })
+  const tbody = overlayDom.querySelector('.tabBody tbody')
+  let saveStarInfo = [] //拿到每次最新数据信息
+
   function handleTableData() {
-    const startName = document.querySelectorAll('.group-list a')
-    const tbody = overlayDom.querySelector('.tabBody tbody')
+    const startInfo = document.querySelectorAll('.group-list a')
+    const localSaveStarData = JSON.parse(localStorage.getItem('saveStarInfo'))
+
     let tbodyContent = ''
-    startName.forEach((item) => {
-      console.log('item: ', item.firstChild.nodeValue)
-      tbodyContent += `<tr>
-      <td style="width: 100px;">${item.firstChild.nodeValue}</td>
-      <td>是</td>
-      <td>是</td>
-      <td>否</td>
-      <td>否</td>
-      <td>是</td>
-      </tr>`
+
+    saveStarInfo = Array.from(startInfo).map((item) => {
+      let starId = item.href.split('/').at(-1)
+      let isExistSetting = {}
+
+      // 本地存的有就用本地的，没有直接添加新的
+      if (localSaveStarData?.length) {
+        isExistSetting = localSaveStarData.find((element) => element.id === starId)
+      }
+
+      return {
+        id: isExistSetting?.id ?? starId,
+        name: isExistSetting?.name ?? item.firstChild.nodeValue,
+        show: isExistSetting?.show ?? true,
+        autoExpand: isExistSetting?.autoExpand ?? false,
+        showInformNumber: isExistSetting?.showInformNumber ?? true,
+        hideTop: isExistSetting?.hideTop ?? false,
+        hideWork: isExistSetting?.hideWork ?? false,
+      }
     })
+
+    handleSettingState(startInfo)
+
+    console.log('saveStarInfo: ', saveStarInfo)
+    saveStarInfo.forEach((item) => {
+      tbodyContent += `
+      <tr>
+      <td style="width: 100px;">${item.name}</td>
+      <td><input type="checkbox" ${item.show && 'checked'} /></td>
+      <td><input type="checkbox" ${item.autoExpand && 'checked'} /></td>
+      <td><input type="checkbox" ${item.showInformNumber && 'checked'} /></td>
+      <td><input type="checkbox" ${item.hideTop && 'checked'} /></td>
+      <td><input type="checkbox" ${item.hideWork && 'checked'} /></td>
+    </tr>
+      `
+    })
+    localStorage.setItem('saveStarInfo', JSON.stringify(saveStarInfo))
     tbody.innerHTML = tbodyContent
   }
 
+  //#endregion
+
+  //#region 保存功能
+  const saveStarDom = overlayDom.querySelector('#saveStar')
+  saveStarDom.addEventListener('click', handleSave)
+  function handleSave() {
+    alert('保存成功')
+    let starInfo = []
+    // console.log('tbody: ', Array.from(tbody.children))
+    Array.from(tbody.children).forEach((item) => {
+      const trChildren = Array.from(item.children)
+      let checkedShow = trChildren[1].querySelector('input').checked //显示星球名字
+      let checkedAutoExpand = trChildren[2].querySelector('input').checked //自动展开
+      let checkedShowInformNumber = trChildren[3].querySelector('input').checked //显示星球通知数字
+      let checkedHideTop = trChildren[4].querySelector('input').checked //隐藏置顶
+      let checkedHideWork = trChildren[5].querySelector('input').checked //隐藏作业
+      starInfo.push({
+        show: checkedShow,
+        showInformNumber: checkedShowInformNumber,
+        autoExpand: checkedAutoExpand,
+        hideTop: checkedHideTop,
+        hideWork: checkedHideWork,
+      })
+    })
+
+    // 进行设置
+    saveStarInfo.forEach((item, index) => {
+      item.show = starInfo[index].show
+      item.showInformNumber = starInfo[index].showInformNumber
+      item.autoExpand = starInfo[index].autoExpand
+      item.hideTop = starInfo[index].hideTop
+      item.hideWork = starInfo[index].hideWork
+    })
+
+    localStorage.removeItem('saveStarInfo')
+    localStorage.setItem('saveStarInfo', JSON.stringify(saveStarInfo))
+
+    handleSettingState() //进行实时设置
+  }
+
+  function handleSettingState() {
+    handleSideMenu() // 侧边栏
+    handleStarMainPage() //主内容区
+  }
+  //#endregion
+
+  //#region 星球设置处理
+  // 侧边栏
+  function handleSideMenu() {
+    const element = document.querySelectorAll('.group-list a')
+    Array.from(element).forEach((item, index) => {
+      // 控制元素显示隐藏
+      item.style.display = saveStarInfo[index].show ? 'block' : 'none'
+      // 控制是否显示数字
+      let isShowNumber = item.querySelector('span')
+      if (isShowNumber) {
+        isShowNumber.style.display = saveStarInfo[index].showInformNumber ? 'block' : 'none'
+      }
+    })
+  }
+
+  // 页面设置
+  let starId = ''
+  function handleStarMainPage() {
+    waitForElm('.main-content-container').then((ele) => {
+      const localSaveStarData = JSON.parse(localStorage.getItem('saveStarInfo'))
+      if (localSaveStarData?.length) {
+        const starItem = localSaveStarData.find((item) => item.id === starId)
+
+        // 设置自动展开
+        const showAll = document.querySelectorAll('.showAll')
+        if (starItem?.autoExpand) {
+          showAll.forEach((item) => {
+            item.click()
+            item.remove()
+          })
+        }
+
+        if (starItem) {
+          // 设置隐藏置顶
+          const hideEle = ele.querySelector('.sticky-topic-container')
+          if (hideEle) {
+            hideEle.style.display = Boolean(starItem.hideTop) ? 'none' : 'block'
+          }
+          // 隐藏作业
+          waitForElm('.checkins-and-tasks').then((ele) => {
+            ele.style.display = Boolean(starItem.hideWork) ? 'none' : 'flex'
+          })
+        }
+      }
+    })
+  }
+
+  const target = document.querySelector('.main-content-container')
+  const observer = new MutationObserver(function (mutations) {
+    starId = location.href.split('/').at(-1)
+    handleSettingState()
+  })
+
+  if (target) {
+    observer.observe(target, {
+      childList: true,
+    })
+  }
   //#endregion
 
   //#region 设置icon
@@ -251,6 +394,7 @@
     element.appendChild(settingDom)
   }
   //#endregion
+
   function waitForElm(selector) {
     return new Promise((resolve) => {
       if (document.querySelector(selector)) {
@@ -283,9 +427,9 @@
   history.pushState = _historyWrap('pushState')
   history.replaceState = _historyWrap('replaceState')
   window.addEventListener('pushState', function (e) {
-    console.log('change pushState', location.href.split('/').at(-1))
+    // console.log('change pushState', location.href.split('/').at(-1))
   })
   window.addEventListener('replaceState', function (e) {
-    console.log('change replaceState', location.href)
+    // console.log('change replaceState', location.href)
   })
 })()
