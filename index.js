@@ -89,7 +89,7 @@
       tr:nth-child(even) {
         background-color: #f9f9f9;
       }
-      .tabBody {
+      .tabStarBody {
         max-height: 300px;
         /* overflow-y: scroll; */
         position: relative;
@@ -99,6 +99,71 @@
         top: 0;
         z-index: 10;
       }
+      .Jackson-notification.success {
+        box-shadow: rgba(22, 185, 152, 0.2) 0px 2px 8px;
+        background: rgba(22, 185, 152, 0.9);
+    }
+      .Jackson-notification {
+        position: fixed;
+        top: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        box-sizing: border-box;
+        margin-top: 5px;
+        min-height: 40px;
+        color: rgb(255, 255, 255);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        z-index: 9999;
+        padding: 10px 12px;
+        border-radius: 4px;
+    }
+    .overlayMessage {
+      z-index: 100000;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.2); /* 半透明黑色背景 */
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .message-box {
+      width: 340px;
+      background-color: #fff;
+      border-radius: 5px;
+      padding: 30px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .message-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .message-body {
+      margin-bottom: 20px;
+    }
+    
+    .message-actions {
+      text-align: right;
+      margin-top: 20px;
+    }
+    
+    .confirm-button,.cancel-button  {
+      margin-left: 10px;
+      width: 45px;
+      height: 25px;
+    }
+    .confirm-button:hover,.cancel-button:hover{
+      cursor:pointer
+    }
   `,
   )
 
@@ -127,7 +192,7 @@
     </thead>
   </table>
 </div>
-<div class="tabBody">
+<div class="tabStarBody">
   <table border="0" cellpadding="0" cellspacing="0">
     <tbody>
     </tbody>
@@ -135,7 +200,24 @@
 </div>
   </div>
   <div class="tabContent" id="tab2Content">
-    <h1>这是全局设置</h1>
+  <div class="tabHead">
+  <table border="0" cellpadding="0" cellspacing="0">
+    <thead>
+      <tr>
+        <th>隐藏发表主题</th>
+        <th>低分辨率下隐藏</th>
+        <th>隐藏滚动条</th>
+        <th>隐藏点赞过的主题</th>
+      </tr>
+    </thead>
+  </table>
+</div>
+<div class="tabGloabalStarBody">
+  <table border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+    </tbody>
+  </table>
+</div>
   </div>
   <div class="closeIcon">
     <svg
@@ -165,6 +247,18 @@
   <button class="tabButton cancelOverlay">取消</button>
 </div>
 </div>
+</div>
+<div class="overlayMessage">
+  <div class="message-box">
+    <div class="message-content">
+      <div class="message-title">提示</div>
+      <div class="message-body"></div>
+      <div class="message-actions">
+        <button class="confirm-button"></button>
+        <button class="cancel-button"></button>
+      </div>
+    </div>
+  </div>
 </div>
   `
   document.body.appendChild(overlayDom)
@@ -197,13 +291,13 @@
   function switchTab(event) {
     const title = event.target.innerText
     if (title === '星球设置') {
-      console.log('title: ', title)
+      // console.log('title: ', title)
       tab1Button.classList.add('active')
       tab2Button.classList.remove('active')
       tab1Content.classList.add('active')
       tab2Content.classList.remove('active')
     } else if (title === '全局设置') {
-      console.log('title: ', title)
+      // console.log('title: ', title)
       tab1Button.classList.remove('active')
       tab2Button.classList.add('active')
       tab1Content.classList.remove('active')
@@ -212,14 +306,15 @@
   }
   //#endregion
 
-  //#region 处理星球数据
+  //#region 处理星球设置数据
   waitForElm('.group-list').then(() => {
-    handleTableData()
+    handleStarSettingData()
+    handleGlobalSettingData()
   })
-  const tbody = overlayDom.querySelector('.tabBody tbody')
+  const tbody = overlayDom.querySelector('.tabStarBody tbody')
   let saveStarInfo = [] //拿到每次最新数据信息
 
-  function handleTableData() {
+  function handleStarSettingData() {
     const startInfo = document.querySelectorAll('.group-list a')
     const localSaveStarData = JSON.parse(localStorage.getItem('saveStarInfo'))
 
@@ -247,7 +342,6 @@
 
     handleSettingState(startInfo)
 
-    console.log('saveStarInfo: ', saveStarInfo)
     saveStarInfo.forEach((item) => {
       tbodyContent += `
       <tr>
@@ -260,17 +354,68 @@
     </tr>
       `
     })
-    localStorage.setItem('saveStarInfo', JSON.stringify(saveStarInfo))
+    // localStorage.setItem('saveStarInfo', JSON.stringify(saveStarInfo))
     tbody.innerHTML = tbodyContent
   }
 
   //#endregion
 
+  //#region 处理星球全局设置
+  const tabGloabalStarBody = overlayDom.querySelector('.tabGloabalStarBody tbody')
+  let saveGlobalStarInfo = [] //拿到每次最新数据信息
+  function handleGlobalSettingData() {
+    const localGlobalStarData = JSON.parse(localStorage.getItem('saveGlobalStarInfo'))
+    let isExistSetting = {}
+
+    // 本地存的有就用本地的，没有直接添加新的
+    for (let index = 0; index < 4; index++) {
+      saveGlobalStarInfo.push({
+        hidePublication: localGlobalStarData?.length ? localGlobalStarData[index].hidePublication : false, //隐藏发表主题框
+        hideLowResolution: localGlobalStarData?.length ? localGlobalStarData[index].hideLowResolution : false, //隐藏低分辨
+        hideScroller: localGlobalStarData?.length ? localGlobalStarData[index].hideScroller : false, //隐藏滚动条
+        hideLikedTheme: localGlobalStarData?.length ? localGlobalStarData[index].hideLikedTheme : false, //隐藏喜欢过的主题
+      })
+    }
+    let tbodyContent = ''
+    saveGlobalStarInfo.forEach((item) => {
+      tbodyContent += `
+      <tr>
+      <td><input type="checkbox" ${item.hidePublication && 'checked'} /></td>
+      <td><input type="checkbox" ${item.hideLowResolution && 'checked'} /></td>
+      <td><input type="checkbox" ${item.hideScroller && 'checked'} /></td>
+      <td><input type="checkbox" ${item.hideLikedTheme && 'checked'} /></td>
+    </tr>
+      `
+    })
+
+    tabGloabalStarBody.innerHTML = tbodyContent
+  }
+  //#endregion
   //#region 保存功能
   const saveStarDom = overlayDom.querySelector('#saveStar')
-  saveStarDom.addEventListener('click', handleSave)
-  function handleSave() {
-    alert('保存成功')
+  saveStarDom.addEventListener('click', showSaveTip)
+  function showSaveTip() {
+    showConfirm({
+      message: '确认进行设置保存吗？',
+    })
+  }
+
+  const confirmBtn = document.querySelector('.confirm-button') //保存确认按钮
+  confirmBtn.addEventListener('click', confirmMessage) // 给确认按钮添加点击事件
+  function confirmMessage() {
+    confirmBox(() => {
+      alertTip({
+        message: '保存成功！',
+        duration: 3000,
+      })
+      // 进行实时设置
+      saveStarSetting()
+      saveGlobalStarSetting()
+    })
+  }
+
+  //保存星球设置
+  function saveStarSetting() {
     let starInfo = []
     // console.log('tbody: ', Array.from(tbody.children))
     Array.from(tbody.children).forEach((item) => {
@@ -303,10 +448,75 @@
 
     handleSettingState() //进行实时设置
   }
+  //保存全局星球设置
+  function saveGlobalStarSetting() {
+    let starInfo = []
+    // console.log('tbody: ', Array.from(tbody.children))
+    Array.from(tabGloabalStarBody.children).forEach((item) => {
+      const trChildren = Array.from(item.children)
+      let checkedHidePublication = trChildren[0].querySelector('input').checked //显示星球名字
+      let checkedHideLowResolution = trChildren[1].querySelector('input').checked //自动展开
+      let checkedHideScroller = trChildren[2].querySelector('input').checked //显示星球通知数字
+      let checkedHideLikedTheme = trChildren[3].querySelector('input').checked //隐藏置顶
+      starInfo.push({
+        hidePublication: checkedHidePublication,
+        hideLowResolution: checkedHideLowResolution,
+        hideScroller: checkedHideScroller,
+        hideLikedTheme: checkedHideLikedTheme,
+      })
+    })
 
+    // 进行设置
+    saveGlobalStarInfo.forEach((item, index) => {
+      item.hidePublication = starInfo[index].hidePublication
+      item.hideLowResolution = starInfo[index].hideLowResolution
+      item.hideScroller = starInfo[index].hideScroller
+      item.hideLikedTheme = starInfo[index].hideLikedTheme
+    })
+
+    localStorage.removeItem('saveGlobalStarInfo')
+    localStorage.setItem('saveGlobalStarInfo', JSON.stringify(saveGlobalStarInfo))
+  }
   function handleSettingState() {
     handleSideMenu() // 侧边栏
     handleStarMainPage() //主内容区
+  }
+
+  //保存成功提示
+  function alertTip({ message, duration = 2000 }) {
+    const divDom = document.createElement('div')
+    divDom.classList.add('Jackson-notification')
+    divDom.classList.add('success')
+    divDom.innerText = message
+    document.body.appendChild(divDom)
+    setTimeout(() => {
+      divDom.remove()
+    }, duration)
+  }
+
+  // 保存-取消确认框
+  const cancelBtn = document.querySelector('.cancel-button') //取消按钮
+  const overlayMes = document.querySelector('.overlayMessage') //弹出窗
+  const messageBox = document.querySelector('.message-box') //消息确认框
+  messageBox.addEventListener('click', (event) => {
+    event.stopPropagation()
+  })
+  overlayMes.addEventListener('click', hiddenConfirm)
+  cancelBtn.addEventListener('click', hiddenConfirm)
+  function showConfirm({ message, confirm = '确认', cancel = '取消' }) {
+    document.querySelector('.message-body').innerText = message
+    document.querySelector('.confirm-button').innerText = confirm
+    document.querySelector('.cancel-button').innerText = cancel
+    overlayMes.style.display = 'flex'
+  }
+  function hiddenConfirm() {
+    overlayMes.style.display = 'none'
+  }
+  // 对确认弹窗封装
+  function confirmBox(fn) {
+    hiddenConfirm()
+    hideOverlay()
+    fn()
   }
   //#endregion
 
