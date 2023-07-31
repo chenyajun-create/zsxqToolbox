@@ -547,7 +547,7 @@
   // 对确认弹窗封装
   function confirmBox(fn) {
     hiddenConfirm()
-    hideOverlay()
+    overlayState.hiddenOverlayDom()
     fn()
   }
   //#endregion
