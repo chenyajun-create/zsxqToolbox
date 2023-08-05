@@ -657,6 +657,5 @@
       handleStarSettingData()
       handleGlobalSettingData()
     })
-  //   console.log('change replaceState', location.href)
-  // })
+  })
 })()
