@@ -339,10 +339,7 @@
   //#endregion
 
   //#region 处理星球设置数据
-  waitForElm('.group-list').then(() => {
-    handleStarSettingData()
-    handleGlobalSettingData()
-  })
+
   const tbody = overlayDom.querySelector('.tabStarBody tbody')
   let saveStarInfo = [] //拿到每次最新数据信息
 
@@ -644,9 +641,13 @@
   history.pushState = _historyWrap('pushState')
   history.replaceState = _historyWrap('replaceState')
   window.addEventListener('pushState', function (e) {
-    // console.log('change pushState', location.href.split('/').at(-1))
+    console.log('change pushState', location.href.split('/').at(-1))
   })
   window.addEventListener('replaceState', function (e) {
-    // console.log('change replaceState', location.href)
+    waitForElm('.group-list').then(() => {
+      handleStarSettingData()
+      handleGlobalSettingData()
+    })
+    console.log('change replaceState', location.href)
   })
 })()
