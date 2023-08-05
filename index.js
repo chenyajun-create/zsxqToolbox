@@ -182,13 +182,13 @@
   <table border="0" cellpadding="0" cellspacing="0">
     <thead>
       <tr>
-        <th style="width: 100px;">星球名字</th>
-        <th>展示</th>
-        <th>自动展开内容</th>
-        <th>显示通知数字</th>
-        <th>隐藏置顶</th>
-        <th>隐藏作业</th>
-        <th>隐藏发表主题</th>
+        <th style="width: 110px;">星球名字</th>
+        <th><div style="display:flex;align-items:center"><span>展示</span><input id="showAllSelectCheckbox" type="checkbox" /></div></th>
+        <th style="width: 70px;"><div style="display:flex;align-items:center"><span>自动展开内容</span><input id="autoExpandAllSelectCheckbox" type="checkbox" /></div></th>
+        <th style="width: 70px;"><div style="display:flex;align-items:center"><span>显示通知数字</span><input id="showInformNumberllSelectCheckbox" type="checkbox" /></div></th>
+        <th><div style="display:flex;align-items:center"><span>隐藏置顶</span><input id="hideTopAllSelectCheckbox" type="checkbox" /></div></th>
+        <th><div style="display:flex;align-items:center"><span>隐藏作业</span><input id="hideWorkAllSelectCheckbox" type="checkbox" /></div></th>
+        <th style="width: 70px;"><div style="display:flex;align-items:center"><span>隐藏发表主题</span><input id="hidePublicationThemeAllSelectCheckbox" type="checkbox" /></div></th>
       </tr>
     </thead>
   </table>
@@ -370,24 +370,97 @@
       }
     })
 
-    handleSettingState(startInfo)
+    handleSettingState(startInfo) //实时设置
 
     saveStarInfo.forEach((item) => {
       tbodyContent += `
       <tr>
-      <td style="width: 100px;">${item.name}</td>
-      <td><input type="checkbox" ${item.show && 'checked'} /></td>
-      <td><input type="checkbox" ${item.autoExpand && 'checked'} /></td>
-      <td><input type="checkbox" ${item.showInformNumber && 'checked'} /></td>
-      <td><input type="checkbox" ${item.hideTop && 'checked'} /></td>
-      <td><input type="checkbox" ${item.hideWork && 'checked'} /></td>
-      <td><input type="checkbox" ${item.hidePublicationTheme && 'checked'} /></td>
+      <td style="width: 110px;">${item.name}</td>
+      <td><input class="showSingleSelectCheckbox" type="checkbox" ${item.show && 'checked'} /></td>
+      <td style="width: 70px;"><input  class="autoExpandSingleSelectCheckbox"  type="checkbox" ${
+        item.autoExpand && 'checked'
+      } /></td>
+      <td style="width: 70px;"><input  class="showInformNumberSingleSelectCheckbox"  type="checkbox" ${
+        item.showInformNumber && 'checked'
+      } /></td>
+      <td><input  class="hideTopSingleSelectCheckbox"  type="checkbox" ${item.hideTop && 'checked'} /></td>
+      <td><input  class="hideWorkSingleSelectCheckbox"  type="checkbox" ${item.hideWork && 'checked'} /></td>
+      <td style="width: 70px;"><input  class="hidePublicationThemeSingleSelectCheckbox"  type="checkbox" ${
+        item.hidePublicationTheme && 'checked'
+      } /></td>
     </tr>
       `
     })
     // localStorage.setItem('saveStarInfo', JSON.stringify(saveStarInfo))
     tbody.innerHTML = tbodyContent
+    handleSelectedState() //处理选中状态
   }
+
+  //#region 全选功能
+  let showAllSelectCheckbox = overlayDom.querySelector('#showAllSelectCheckbox')
+  let autoExpandAllSelectCheckbox = overlayDom.querySelector('#autoExpandAllSelectCheckbox')
+  let showInformNumberllSelectCheckbox = overlayDom.querySelector('#showInformNumberllSelectCheckbox')
+  let hideTopAllSelectCheckbox = overlayDom.querySelector('#hideTopAllSelectCheckbox')
+  let hideWorkAllSelectCheckbox = overlayDom.querySelector('#hideWorkAllSelectCheckbox')
+  let hidePublicationThemeAllSelectCheckbox = overlayDom.querySelector('#hidePublicationThemeAllSelectCheckbox')
+  let selectorArray = [
+    showAllSelectCheckbox,
+    autoExpandAllSelectCheckbox,
+    showInformNumberllSelectCheckbox,
+    hideTopAllSelectCheckbox,
+    hideWorkAllSelectCheckbox,
+    hidePublicationThemeAllSelectCheckbox,
+  ]
+  selectorArray.forEach((item, index) => {
+    item.addEventListener('change', () => {
+      handleAllSelected(item, index + 1)
+    })
+  })
+  function handleAllSelected(element, index) {
+    Array.from(tbody.children).forEach((item) => {
+      const trChildren = Array.from(item.children)
+      trChildren[index].querySelector('input').checked = element.checked
+    })
+  }
+  // 处理选中状态
+  function handleSelectedState() {
+    let showSingleSelectCheckbox = overlayDom.querySelectorAll('.showSingleSelectCheckbox')
+    let autoExpandSingleSelectCheckbox = overlayDom.querySelectorAll('.autoExpandSingleSelectCheckbox')
+    let showInformNumberSingleSelectCheckbox = overlayDom.querySelectorAll('.showInformNumberSingleSelectCheckbox')
+    let hideTopSingleSelectCheckbox = overlayDom.querySelectorAll('.hideTopSingleSelectCheckbox')
+    let hideWorkSingleSelectCheckbox = overlayDom.querySelectorAll('.hideWorkSingleSelectCheckbox')
+    let hidePublicationThemeSingleSelectCheckbox = overlayDom.querySelectorAll(
+      '.hidePublicationThemeSingleSelectCheckbox',
+    )
+    let singleSelectedArray = [
+      showSingleSelectCheckbox,
+      autoExpandSingleSelectCheckbox,
+      showInformNumberSingleSelectCheckbox,
+      hideTopSingleSelectCheckbox,
+      hideWorkSingleSelectCheckbox,
+      hidePublicationThemeSingleSelectCheckbox,
+    ]
+    singleSelectedArray.forEach((item, index) => {
+      item.forEach((element) => {
+        handleItemSelected(selectorArray[index], index + 1)
+        element.addEventListener('change', () => {
+          handleItemSelected(selectorArray[index], index + 1)
+        })
+      })
+    })
+  }
+  function handleItemSelected(element, index) {
+    let isTrue = []
+    Array.from(tbody.children).forEach((item) => {
+      const trChildren = Array.from(item.children)
+      let state = trChildren[index].querySelector('input').checked
+      isTrue.push(state)
+    })
+    let isAllTrue = isTrue.every((item) => item)
+    element.checked = isAllTrue
+  }
+
+  //#endregion
 
   //#endregion
 
@@ -653,6 +726,7 @@
     console.log('change pushState', location.href.split('/').at(-1))
   })
   window.addEventListener('replaceState', function (e) {
+    console.log('replaceState: ', e)
     waitForElm('.group-list').then(() => {
       handleStarSettingData()
       handleGlobalSettingData()
