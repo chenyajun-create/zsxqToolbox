@@ -188,6 +188,7 @@
         <th>显示通知数字</th>
         <th>隐藏置顶</th>
         <th>隐藏作业</th>
+        <th>隐藏发表主题</th>
       </tr>
     </thead>
   </table>
@@ -204,7 +205,6 @@
   <table border="0" cellpadding="0" cellspacing="0">
     <thead>
       <tr>
-        <th>隐藏发表主题</th>
         <th>低分辨率下隐藏</th>
         <th>隐藏滚动条</th>
         <th>隐藏点赞过的主题</th>
@@ -366,6 +366,7 @@
         showInformNumber: isExistSetting?.showInformNumber ?? true,
         hideTop: isExistSetting?.hideTop ?? false,
         hideWork: isExistSetting?.hideWork ?? false,
+        hidePublicationTheme: isExistSetting?.hidePublicationTheme ?? false,
       }
     })
 
@@ -380,6 +381,7 @@
       <td><input type="checkbox" ${item.showInformNumber && 'checked'} /></td>
       <td><input type="checkbox" ${item.hideTop && 'checked'} /></td>
       <td><input type="checkbox" ${item.hideWork && 'checked'} /></td>
+      <td><input type="checkbox" ${item.hidePublicationTheme && 'checked'} /></td>
     </tr>
       `
     })
@@ -454,12 +456,14 @@
       let checkedShowInformNumber = trChildren[3].querySelector('input').checked //显示星球通知数字
       let checkedHideTop = trChildren[4].querySelector('input').checked //隐藏置顶
       let checkedHideWork = trChildren[5].querySelector('input').checked //隐藏作业
+      let checkedHideTheme = trChildren[6].querySelector('input').checked //隐藏作业
       starInfo.push({
         show: checkedShow,
         showInformNumber: checkedShowInformNumber,
         autoExpand: checkedAutoExpand,
         hideTop: checkedHideTop,
         hideWork: checkedHideWork,
+        hidePublicationTheme: checkedHideTheme,
       })
     })
 
@@ -470,6 +474,7 @@
       item.autoExpand = starInfo[index].autoExpand
       item.hideTop = starInfo[index].hideTop
       item.hideWork = starInfo[index].hideWork
+      item.hidePublicationTheme = starInfo[index].hidePublicationTheme
     })
 
     localStorage.removeItem('saveStarInfo')
@@ -591,6 +596,10 @@
           waitForElm('.checkins-and-tasks').then((ele) => {
             ele.style.display = Boolean(starItem.hideWork) ? 'none' : 'flex'
           })
+          // 隐藏发表主题
+          waitForElm('.post-container').then((ele) => {
+            ele.style.display = Boolean(starItem.hidePublicationTheme) ? 'none' : 'flex'
+          })
         }
       }
     })
@@ -648,6 +657,6 @@
       handleStarSettingData()
       handleGlobalSettingData()
     })
-    console.log('change replaceState', location.href)
-  })
+  //   console.log('change replaceState', location.href)
+  // })
 })()
