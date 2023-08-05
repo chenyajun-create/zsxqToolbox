@@ -161,9 +161,13 @@
       width: 45px;
       height: 25px;
     }
-    .confirm-button:hover,.cancel-button:hover{
+    .confirm-button:hover,.cancel-button:hover,.global-checked-box:hover,.start-title:hover{
       cursor:pointer
     }
+    .global-checked-box{
+      width: 16px;
+      height: 16px;
+}
   `,
   )
 
@@ -183,12 +187,12 @@
     <thead>
       <tr>
         <th style="width: 110px;">星球名字</th>
-        <th><div style="display:flex;align-items:center"><span>展示</span><input id="showAllSelectCheckbox" type="checkbox" /></div></th>
-        <th style="width: 70px;"><div style="display:flex;align-items:center"><span>自动展开内容</span><input id="autoExpandAllSelectCheckbox" type="checkbox" /></div></th>
-        <th style="width: 70px;"><div style="display:flex;align-items:center"><span>显示通知数字</span><input id="showInformNumberllSelectCheckbox" type="checkbox" /></div></th>
-        <th><div style="display:flex;align-items:center"><span>隐藏置顶</span><input id="hideTopAllSelectCheckbox" type="checkbox" /></div></th>
-        <th><div style="display:flex;align-items:center"><span>隐藏作业</span><input id="hideWorkAllSelectCheckbox" type="checkbox" /></div></th>
-        <th style="width: 70px;"><div style="display:flex;align-items:center"><span>隐藏发表主题</span><input id="hidePublicationThemeAllSelectCheckbox" type="checkbox" /></div></th>
+        <th><div style="display:flex;align-items:center"><span>展示</span><input class="start-title" id="showAllSelectCheckbox" type="checkbox" /></div></th>
+        <th style="width: 70px;"><div style="display:flex;align-items:center"><span>自动展开内容</span><input class="start-title" id="autoExpandAllSelectCheckbox" type="checkbox" /></div></th>
+        <th style="width: 70px;"><div style="display:flex;align-items:center"><span>显示通知数字</span><input class="start-title" id="showInformNumberllSelectCheckbox" type="checkbox" /></div></th>
+        <th><div style="display:flex;align-items:center"><span>隐藏置顶</span><input class="start-title" id="hideTopAllSelectCheckbox" type="checkbox" /></div></th>
+        <th><div style="display:flex;align-items:center"><span>隐藏作业</span><input  class="start-title" id="hideWorkAllSelectCheckbox" type="checkbox" /></div></th>
+        <th style="width: 70px;"><div style="display:flex;align-items:center"><span>隐藏发表主题</span><input class="start-title" id="hidePublicationThemeAllSelectCheckbox" type="checkbox" /></div></th>
       </tr>
     </thead>
   </table>
@@ -201,23 +205,20 @@
 </div>
   </div>
   <div class="tabContent" id="tab2Content">
-  <div class="tabHead">
-  <table border="0" cellpadding="0" cellspacing="0">
-    <thead>
-      <tr>
-        <th>低分辨率下隐藏</th>
-        <th>隐藏滚动条</th>
-        <th>隐藏点赞过的主题</th>
-      </tr>
-    </thead>
-  </table>
-</div>
-<div class="tabGloabalStarBody">
-  <table border="0" cellpadding="0" cellspacing="0">
-    <tbody>
-    </tbody>
-  </table>
-</div>
+  <div style="display: flex;gap: 70px;">
+  <div style="display:flex;align-items:center">
+  <span style="font-size: 15px;">低分辨率下隐藏</span>
+  <input class="global-checked-box" id="showAllSelectCheckbox" type="checkbox" />
+  </div>
+  <div style="display:flex;align-items:center">
+  <span style="font-size: 15px;">隐藏滚动条</span>
+  <input class="global-checked-box"  id="showAllSelectCheckbox" type="checkbox" />
+  </div>
+  <div style="display:flex;align-items:center">
+  <span style="font-size: 15px;">隐藏点赞过的主题</span>
+  <input class="global-checked-box" id="showAllSelectCheckbox" type="checkbox" />
+  </div>
+  </div>
   </div>
   <div class="closeIcon">
     <svg
@@ -370,22 +371,24 @@
       }
     })
 
-    handleSettingState(startInfo) //实时设置
+    handleSettingState(startInfo) //实时设置class="start-title"
 
     saveStarInfo.forEach((item) => {
       tbodyContent += `
       <tr>
       <td style="width: 110px;">${item.name}</td>
-      <td><input class="showSingleSelectCheckbox" type="checkbox" ${item.show && 'checked'} /></td>
-      <td style="width: 70px;"><input  class="autoExpandSingleSelectCheckbox"  type="checkbox" ${
+      <td><input class="showSingleSelectCheckbox start-title" type="checkbox" ${item.show && 'checked'} /></td>
+      <td style="width: 70px;"><input  class="autoExpandSingleSelectCheckbox start-title"  type="checkbox" ${
         item.autoExpand && 'checked'
       } /></td>
-      <td style="width: 70px;"><input  class="showInformNumberSingleSelectCheckbox"  type="checkbox" ${
+      <td style="width: 70px;"><input  class="showInformNumberSingleSelectCheckbox start-title"  type="checkbox" ${
         item.showInformNumber && 'checked'
       } /></td>
-      <td><input  class="hideTopSingleSelectCheckbox"  type="checkbox" ${item.hideTop && 'checked'} /></td>
-      <td><input  class="hideWorkSingleSelectCheckbox"  type="checkbox" ${item.hideWork && 'checked'} /></td>
-      <td style="width: 70px;"><input  class="hidePublicationThemeSingleSelectCheckbox"  type="checkbox" ${
+      <td><input  class="hideTopSingleSelectCheckbox start-title"  type="checkbox" ${item.hideTop && 'checked'} /></td>
+      <td><input  class="hideWorkSingleSelectCheckbox start-title"  type="checkbox" ${
+        item.hideWork && 'checked'
+      } /></td>
+      <td style="width: 70px;"><input  class="hidePublicationThemeSingleSelectCheckbox start-title"  type="checkbox" ${
         item.hidePublicationTheme && 'checked'
       } /></td>
     </tr>
