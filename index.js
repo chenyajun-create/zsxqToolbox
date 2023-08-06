@@ -205,20 +205,6 @@
 </div>
   </div>
   <div class="tabContent" id="tab2Content">
-  <div style="display: flex;gap: 70px;">
-  <div style="display:flex;align-items:center">
-  <span style="font-size: 15px;">低分辨率下隐藏</span>
-  <input class="global-checked-box" id="showAllSelectCheckbox" type="checkbox" />
-  </div>
-  <div style="display:flex;align-items:center">
-  <span style="font-size: 15px;">隐藏滚动条</span>
-  <input class="global-checked-box"  id="showAllSelectCheckbox" type="checkbox" />
-  </div>
-  <div style="display:flex;align-items:center">
-  <span style="font-size: 15px;">隐藏点赞过的主题</span>
-  <input class="global-checked-box" id="showAllSelectCheckbox" type="checkbox" />
-  </div>
-  </div>
   </div>
   <div class="closeIcon">
     <svg
@@ -468,34 +454,41 @@
   //#endregion
 
   //#region 处理星球全局设置
-  const tabGloabalStarBody = overlayDom.querySelector('.tabGloabalStarBody tbody')
-  let saveGlobalStarInfo = [] //拿到每次最新数据信息
+  let saveGlobalStarInfo = {
+    hideLowResolution: false,
+    hideScroller: false,
+    hideLikedTheme: false,
+  }
+  //拿到每次最新数据信息
   function handleGlobalSettingData() {
-    const localGlobalStarData = JSON.parse(localStorage.getItem('saveGlobalStarInfo'))
-    let isExistSetting = {}
-
-    // 本地存的有就用本地的，没有直接添加新的
-    for (let index = 0; index < 4; index++) {
-      saveGlobalStarInfo.push({
-        hidePublication: localGlobalStarData?.length ? localGlobalStarData[index].hidePublication : false, //隐藏发表主题框
-        hideLowResolution: localGlobalStarData?.length ? localGlobalStarData[index].hideLowResolution : false, //隐藏低分辨
-        hideScroller: localGlobalStarData?.length ? localGlobalStarData[index].hideScroller : false, //隐藏滚动条
-        hideLikedTheme: localGlobalStarData?.length ? localGlobalStarData[index].hideLikedTheme : false, //隐藏喜欢过的主题
-      })
+    let localGlobalStarData = JSON.parse(localStorage.getItem('saveGlobalStarInfo'))
+    if (localGlobalStarData !== null) {
+      saveGlobalStarInfo = localGlobalStarData
     }
-    let tbodyContent = ''
-    saveGlobalStarInfo.forEach((item) => {
-      tbodyContent += `
-      <tr>
-      <td><input type="checkbox" ${item.hidePublication && 'checked'} /></td>
-      <td><input type="checkbox" ${item.hideLowResolution && 'checked'} /></td>
-      <td><input type="checkbox" ${item.hideScroller && 'checked'} /></td>
-      <td><input type="checkbox" ${item.hideLikedTheme && 'checked'} /></td>
-    </tr>
-      `
-    })
+    handleGlobalSettingState() //进行星球设置
+    let tab2Content = document.querySelector('#tab2Content')
+    let showhideLowResolution = localGlobalStarData !== null ? localGlobalStarData.hideLowResolution : false
+    let showhideScroller = localGlobalStarData !== null ? localGlobalStarData.hideScroller : false
+    let showhideLikedTheme = localGlobalStarData !== null ? localGlobalStarData.hideLikedTheme : false
+    tab2Content.innerHTML = `
+  <div style="display: flex;gap: 70px;">
+    <div style="display:flex;align-items:center">
+    <span style="font-size: 15px;">低分辨率下隐藏（开发中）</span>
+    <input ${showhideLowResolution && 'checked'} class="global-checked-box" id="hiddenLowResolution" type="checkbox"  />
+    </div>
 
-    tabGloabalStarBody.innerHTML = tbodyContent
+    <div style="display:flex;align-items:center">
+    <span style="font-size: 15px;">隐藏滚动条</span>
+    <input class="global-checked-box" id="hiddenSroller" type="checkbox" ${showhideScroller && 'checked'} />
+    </div>
+
+    <div style="display:flex;align-items:center">
+    <span style="font-size: 15px;">隐藏点赞过的主题（开发中）</span>
+    <input class="global-checked-box" id="hideLikedTheme" type="checkbox" ${showhideLikedTheme && 'checked'} />
+    </div>
+
+    </div>
+    `
   }
   //#endregion
   //#region 保存功能
@@ -524,7 +517,6 @@
   //保存星球设置
   function saveStarSetting() {
     let starInfo = []
-    // console.log('tbody: ', Array.from(tbody.children))
     Array.from(tbody.children).forEach((item) => {
       const trChildren = Array.from(item.children)
       let checkedShow = trChildren[1].querySelector('input').checked //显示星球名字
@@ -558,38 +550,37 @@
 
     handleSettingState() //进行实时设置
   }
+  //星球设置
+  function handleSettingState() {
+    handleSideMenu() // 侧边栏
+    handleStarMainPage() //主内容区
+  }
+
   //保存全局星球设置
   function saveGlobalStarSetting() {
-    let starInfo = []
-    // console.log('tbody: ', Array.from(tbody.children))
-    Array.from(tabGloabalStarBody.children).forEach((item) => {
-      const trChildren = Array.from(item.children)
-      let checkedHidePublication = trChildren[0].querySelector('input').checked //显示星球名字
-      let checkedHideLowResolution = trChildren[1].querySelector('input').checked //自动展开
-      let checkedHideScroller = trChildren[2].querySelector('input').checked //显示星球通知数字
-      let checkedHideLikedTheme = trChildren[3].querySelector('input').checked //隐藏置顶
-      starInfo.push({
-        hidePublication: checkedHidePublication,
-        hideLowResolution: checkedHideLowResolution,
-        hideScroller: checkedHideScroller,
-        hideLikedTheme: checkedHideLikedTheme,
-      })
-    })
+    const hiddenLowResolution = overlayDom.querySelector('#hiddenLowResolution')
+    const hiddenSroller = overlayDom.querySelector('#hiddenSroller')
+    const hideLikedTheme = overlayDom.querySelector('#hideLikedTheme')
+    saveGlobalStarInfo = {
+      hideLowResolution: hiddenLowResolution.checked,
+      hideScroller: hiddenSroller.checked,
+      hideLikedTheme: hideLikedTheme.checked,
+    }
 
-    // 进行设置
-    saveGlobalStarInfo.forEach((item, index) => {
-      item.hidePublication = starInfo[index].hidePublication
-      item.hideLowResolution = starInfo[index].hideLowResolution
-      item.hideScroller = starInfo[index].hideScroller
-      item.hideLikedTheme = starInfo[index].hideLikedTheme
-    })
+    handleGlobalSettingState()
 
     localStorage.removeItem('saveGlobalStarInfo')
     localStorage.setItem('saveGlobalStarInfo', JSON.stringify(saveGlobalStarInfo))
   }
-  function handleSettingState() {
-    handleSideMenu() // 侧边栏
-    handleStarMainPage() //主内容区
+  // 全局设置
+  function handleGlobalSettingState() {
+    // 隐藏滚动条
+    let leftScroll = document.querySelector('.group-list-wrapper')
+    let rightScroll = document.querySelector('.group-preview-wrapper')
+    let scrollerArray = [leftScroll, rightScroll]
+    scrollerArray.forEach((item) => {
+      item.style.overflowX = saveGlobalStarInfo.hideScroller ? 'hidden' : 'auto'
+    })
   }
 
   //保存成功提示
@@ -622,7 +613,7 @@
   function hiddenConfirm() {
     overlayMes.style.display = 'none'
   }
-  // 对确认弹窗封装
+  // 对点击确认弹窗之后封装
   function confirmBox(fn) {
     hiddenConfirm()
     overlayState.hiddenOverlayDom()
@@ -685,6 +676,7 @@
   const observer = new MutationObserver(function (mutations) {
     starId = location.href.split('/').at(-1)
     handleSettingState()
+    handleGlobalSettingState()
   })
 
   if (target) {
@@ -726,10 +718,10 @@
   history.pushState = _historyWrap('pushState')
   history.replaceState = _historyWrap('replaceState')
   window.addEventListener('pushState', function (e) {
-    console.log('change pushState', location.href.split('/').at(-1))
+    // console.log('change pushState', location.href.split('/').at(-1))
   })
   window.addEventListener('replaceState', function (e) {
-    console.log('replaceState: ', e)
+    // console.log('replaceState: ', e)
     waitForElm('.group-list').then(() => {
       handleStarSettingData()
       handleGlobalSettingData()
