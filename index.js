@@ -460,6 +460,7 @@
     hideLowResolution: false,
     hideScroller: false,
     hideLikedTheme: false,
+    showMesInformNum: false,
   }
   //拿到每次最新数据信息
   function handleGlobalSettingData() {
@@ -472,21 +473,27 @@
     let showhideLowResolution = localGlobalStarData !== null ? localGlobalStarData.hideLowResolution : false
     let showhideScroller = localGlobalStarData !== null ? localGlobalStarData.hideScroller : false
     let showhideLikedTheme = localGlobalStarData !== null ? localGlobalStarData.hideLikedTheme : false
+    let showMesInformNum = localGlobalStarData !== null ? localGlobalStarData.showMesInformNum : false
     tab2Content.innerHTML = `
-  <div style="display: flex;gap: 70px;">
-    <div style="display:flex;align-items:center">
+  <div style="display: flex;gap: 50px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;margin-right:70px">
     <span style="font-size: 15px;">低分辨率下隐藏（开发中）</span>
     <input ${showhideLowResolution && 'checked'} class="global-checked-box" id="hiddenLowResolution" type="checkbox"  />
     </div>
 
-    <div style="display:flex;align-items:center">
+    <div style="display:flex;align-items:center;margin-right:70px">
     <span style="font-size: 15px;">隐藏滚动条</span>
     <input class="global-checked-box" id="hiddenSroller" type="checkbox" ${showhideScroller && 'checked'} />
     </div>
 
-    <div style="display:flex;align-items:center">
+    <div style="display:flex;align-items:center;margin-right:70px">
     <span style="font-size: 15px;">隐藏点赞过的主题（开发中）</span>
     <input class="global-checked-box" id="hideLikedTheme" type="checkbox" ${showhideLikedTheme && 'checked'} />
+    </div>
+
+    <div style="display:flex;align-items:center;margin-right:70px">
+    <span style="font-size: 15px;">隐藏消息通知数字</span>
+    <input class="global-checked-box" id="hideMesInformNum" type="checkbox" ${showMesInformNum && 'checked'} />
     </div>
 
     </div>
@@ -563,10 +570,12 @@
     const hiddenLowResolution = overlayDom.querySelector('#hiddenLowResolution')
     const hiddenSroller = overlayDom.querySelector('#hiddenSroller')
     const hideLikedTheme = overlayDom.querySelector('#hideLikedTheme')
+    const hideMesInformNum = overlayDom.querySelector('#hideMesInformNum')
     saveGlobalStarInfo = {
       hideLowResolution: hiddenLowResolution.checked,
       hideScroller: hiddenSroller.checked,
       hideLikedTheme: hideLikedTheme.checked,
+      hideMesInformNum: hideMesInformNum.checked,
     }
 
     handleGlobalSettingState()
@@ -583,6 +592,12 @@
     scrollerArray.forEach((item) => {
       item.style.overflowX = saveGlobalStarInfo.hideScroller ? 'hidden' : 'auto'
     })
+
+    //隐藏通知数字
+    let mesInformNumDon = document.querySelector('.notify-count')
+    console.log('mesInformNumDon: ', mesInformNumDon.style)
+    console.log('saveGlobalStarInfo: ', saveGlobalStarInfo)
+    mesInformNumDon.style.display = saveGlobalStarInfo.hideMesInformNum ? 'none' : 'block'
   }
 
   //保存成功提示
