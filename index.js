@@ -24,7 +24,7 @@
       /* Tabs容器样式 */
       #tabsContainer {
         position: relative;
-        width: 45vw;
+        width: 50vw;
         min-width: 400px;
         height: 500px;
         background-color: #fff;
@@ -187,12 +187,12 @@
     <thead>
       <tr>
         <th style="width: 110px;">星球名字</th>
-        <th><div style="display:flex;align-items:center"><span>展示</span><input class="start-title" id="showAllSelectCheckbox" type="checkbox" /></div></th>
-        <th style="width: 70px;"><div style="display:flex;align-items:center"><span>自动展开内容</span><input class="start-title" id="autoExpandAllSelectCheckbox" type="checkbox" /></div></th>
-        <th style="width: 70px;"><div style="display:flex;align-items:center"><span>显示通知数字</span><input class="start-title" id="showInformNumberllSelectCheckbox" type="checkbox" /></div></th>
-        <th><div style="display:flex;align-items:center"><span>隐藏置顶</span><input class="start-title" id="hideTopAllSelectCheckbox" type="checkbox" /></div></th>
-        <th><div style="display:flex;align-items:center"><span>隐藏作业</span><input  class="start-title" id="hideWorkAllSelectCheckbox" type="checkbox" /></div></th>
-        <th style="width: 70px;"><div style="display:flex;align-items:center"><span>隐藏发表主题</span><input class="start-title" id="hidePublicationThemeAllSelectCheckbox" type="checkbox" /></div></th>
+        <th ><div style="display:flex;align-items:center"><span>展示</span><input class="start-title" id="showAllSelectCheckbox" type="checkbox" /></div></th>
+        <th style="width: 90px;"><div style="display:flex;align-items:center"><span>自动展开内容</span><input class="start-title" id="autoExpandAllSelectCheckbox" type="checkbox" /></div></th>
+        <th style="width: 90px;"><div style="display:flex;align-items:center"><span>显示通知数字</span><input class="start-title" id="showInformNumberllSelectCheckbox" type="checkbox" /></div></th>
+        <th style="width: 70px;"><div style="display:flex;align-items:center"><span>隐藏置顶</span><input class="start-title" id="hideTopAllSelectCheckbox" type="checkbox" /></div></th>
+        <th style="width: 70px;"><div style="display:flex;align-items:center"><span>隐藏作业</span><input  class="start-title" id="hideWorkAllSelectCheckbox" type="checkbox" /></div></th>
+        <th style="width: 90px;"><div style="display:flex;align-items:center"><span>隐藏发表主题</span><input class="start-title" id="hidePublicationThemeAllSelectCheckbox" type="checkbox" /></div></th>
       </tr>
     </thead>
   </table>
@@ -363,18 +363,20 @@
       tbodyContent += `
       <tr>
       <td style="width: 110px;">${item.name}</td>
-      <td><input class="showSingleSelectCheckbox start-title" type="checkbox" ${item.show && 'checked'} /></td>
-      <td style="width: 70px;"><input  class="autoExpandSingleSelectCheckbox start-title"  type="checkbox" ${
+      <td ><input class="showSingleSelectCheckbox start-title" type="checkbox" ${item.show && 'checked'} /></td>
+      <td style="width: 90px;"><input  class="autoExpandSingleSelectCheckbox start-title"  type="checkbox" ${
         item.autoExpand && 'checked'
       } /></td>
-      <td style="width: 70px;"><input  class="showInformNumberSingleSelectCheckbox start-title"  type="checkbox" ${
+      <td style="width: 90px;"><input  class="showInformNumberSingleSelectCheckbox start-title"  type="checkbox" ${
         item.showInformNumber && 'checked'
       } /></td>
-      <td><input  class="hideTopSingleSelectCheckbox start-title"  type="checkbox" ${item.hideTop && 'checked'} /></td>
-      <td><input  class="hideWorkSingleSelectCheckbox start-title"  type="checkbox" ${
+      <td style="width: 70px;"> <input  class="hideTopSingleSelectCheckbox start-title"  type="checkbox" ${
+        item.hideTop && 'checked'
+      } /></td>
+      <td style="width: 70px;"><input  class="hideWorkSingleSelectCheckbox start-title"  type="checkbox" ${
         item.hideWork && 'checked'
       } /></td>
-      <td style="width: 70px;"><input  class="hidePublicationThemeSingleSelectCheckbox start-title"  type="checkbox" ${
+      <td style="width: 90px;"><input  class="hidePublicationThemeSingleSelectCheckbox start-title"  type="checkbox" ${
         item.hidePublicationTheme && 'checked'
       } /></td>
     </tr>
@@ -665,7 +667,7 @@
           })
           // 隐藏发表主题
           waitForElm('.post-container').then((ele) => {
-            ele.style.display = Boolean(starItem.hidePublicationTheme) ? 'none' : 'flex'
+            ele.style.display = Boolean(starItem.hidePublicationTheme) ? 'none' : 'block'
           })
         }
       }
@@ -721,7 +723,6 @@
     // console.log('change pushState', location.href.split('/').at(-1))
   })
   window.addEventListener('replaceState', function (e) {
-    // console.log('replaceState: ', e)
     waitForElm('.group-list').then(() => {
       handleStarSettingData()
       handleGlobalSettingData()
