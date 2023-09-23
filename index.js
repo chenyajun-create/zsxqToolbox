@@ -497,7 +497,7 @@
       </div>
 
       <div style="display:flex;align-items:center;margin-right:70px">
-      <span style="font-size: 15px;">隐藏点赞过的主题（开发中）</span>
+      <span style="font-size: 15px;">隐藏点赞过的主题</span>
       <input class="global-checked-box" id="hideLikedTheme" type="checkbox" ${showhideLikedTheme && 'checked'} />
       </div>
 
@@ -613,6 +613,39 @@
     waitForElm('.group-preview-container').then((ele) => {
       ele.style.display = saveGlobalStarInfo.hideLowResolution ? 'none' : 'block'
       setTimeLineLeft() //设置时间线位置
+    })
+
+    // 隐藏点赞过的主题帖
+    waitForElm('.main-content-container').then((ele) => {
+      let state = saveGlobalStarInfo.hideLikedTheme ? 'none' : 'block'
+      hasLikedData(state)
+    })
+  }
+  let mutationsList = []
+  function hasLikedData(state) {
+    let deleteCount = 0
+    if (!mutationsList.length) {
+      return
+    }
+    waitForElm('.topic-container').then(() => {
+      mutationsList.forEach(function (mutation) {
+        const nodes = mutation.addedNodes?.[0]
+        if (typeof nodes?.querySelector === 'function') {
+          const targetNode = nodes?.querySelector('.liked')
+          if (targetNode && deleteCount < 18) {
+            let parentNode = targetNode.parentNode
+            while (parentNode) {
+              if (parentNode.classList?.contains('topic-container')) {
+                // parentNode.remove()
+                parentNode.style.display = state
+                deleteCount++
+                break
+              }
+              parentNode = parentNode.parentNode
+            }
+          }
+        }
+      })
     })
   }
   //设置时间线位置
@@ -730,13 +763,13 @@
   }
 
   const target = document.querySelector('.main-content-container')
+
   const observer = new MutationObserver(function (mutations) {
-    // console.log('mutations: ', mutations)
+    mutationsList = mutations
     starId = location.href.split('/').at(-1)
 
     handleStarSettingData()
     handleGlobalSettingData()
-
     // handleSettingState()
     // handleGlobalSettingState()
     // globalSettingContent()
@@ -783,15 +816,17 @@
   window.addEventListener('pushState', function (e) {
     // console.log('change pushState', location.href.split('/').at(-1))
   })
-  waitForElm('.group-list').then((e) => {
-    // handleStarSettingData()
-    // handleGlobalSettingData()
-  })
-  window.addEventListener('replaceState', function (e) {
-    waitForElm('.group-list').then(() => {
-      console.log('e: ', e)
-      handleStarSettingData()
-      handleGlobalSettingData()
-    })
-  })
+  window.addEventListener('replaceState', function (e) {})
+  // url变化后刷新
+  let currentURL = location.href
+  const regex = /^https:\/\/wx\.zsxq\.com\/dweb2\/index\/group(\/\d+)?$/
+  setInterval(() => {
+    if (currentURL !== location.href) {
+      currentURL = location.href
+      if (regex.test(currentURL)) {
+        handleStarSettingData()
+        handleGlobalSettingData()
+      }
+    }
+  }, 100)
 })()
