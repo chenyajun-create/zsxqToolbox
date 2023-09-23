@@ -485,7 +485,7 @@
     tab2Content.innerHTML = `
     <div style="display: flex;gap: 50px;flex-wrap:wrap">
       <div style="display:flex;align-items:center;margin-right:70px">
-      <span style="font-size: 15px;">低分辨率下隐藏（开发中）</span>
+      <span style="font-size: 15px;">隐藏右侧侧边栏</span>
       <input ${
         showhideLowResolution && 'checked'
       } class="global-checked-box" id="hiddenLowResolution" type="checkbox"  />
@@ -593,6 +593,7 @@
     localStorage.removeItem('saveGlobalStarInfo')
     localStorage.setItem('saveGlobalStarInfo', JSON.stringify(saveGlobalStarInfo))
   }
+
   // 全局设置
   function handleGlobalSettingState() {
     // 隐藏滚动条
@@ -604,12 +605,42 @@
     })
 
     //隐藏通知数字
-    let mesInformNumDon = document.querySelector('.notify-count')
-    if (mesInformNumDon) {
-      mesInformNumDon.style.display = saveGlobalStarInfo.hideMesInformNum ? 'none' : 'block'
-    }
-  }
+    waitForElm('.notify-count').then((ele) => {
+      ele.style.display = saveGlobalStarInfo.hideMesInformNum ? 'none' : 'block'
+    })
 
+    // 隐藏侧边栏
+    waitForElm('.group-preview-container').then((ele) => {
+      ele.style.display = saveGlobalStarInfo.hideLowResolution ? 'none' : 'block'
+      setTimeLineLeft() //设置时间线位置
+    })
+  }
+  //设置时间线位置
+  function setTimeLineLeft() {
+    let rightSideBar = document.querySelector('.month-selector')
+    let width = '1152px'
+    if (saveGlobalStarInfo.hideLowResolution) {
+      if (window.innerWidth < 1600) {
+        width = '952px'
+      } else {
+        width = '1152px'
+      }
+    } else {
+      if (window.innerWidth < 1600) {
+        width = '1232px'
+      } else {
+        width = '1432px'
+      }
+    }
+    rightSideBar.style.marginLeft = width
+  }
+  // 检测屏幕变化
+  const handleResize = () => {
+    waitForElm('.group-preview-container').then((ele) => {
+      setTimeLineLeft() //设置时间线位置
+    })
+  }
+  window.addEventListener('resize', handleResize)
   //保存成功提示
   function alertTip({ message, duration = 2000 }) {
     const divDom = document.createElement('div')
@@ -711,9 +742,11 @@
     // globalSettingContent()
   })
 
-  observer.observe(target, {
-    childList: true,
-  })
+  if (target) {
+    observer.observe(target, {
+      childList: true,
+    })
+  }
   //#endregion
 
   function waitForElm(selector) {
