@@ -326,7 +326,6 @@
   //#endregion
 
   //#region 处理星球设置数据
-
   const tbody = overlayDom.querySelector('.tabStarBody tbody')
   let saveStarInfo = [] //拿到每次最新数据信息
 
@@ -336,6 +335,10 @@
 
     let tbodyContent = ''
 
+    if (saveStarInfo.length) {
+      handleSettingState(startInfo) //实时设置
+      return
+    }
     saveStarInfo = Array.from(startInfo).map((item) => {
       let starId = item.href.split('/').at(-1)
       let isExistSetting = {}
@@ -679,10 +682,9 @@
 
         if (starItem) {
           // 设置隐藏置顶
-          const hideEle = ele.querySelector('.sticky-topic-container')
-          if (hideEle) {
-            hideEle.style.display = Boolean(starItem.hideTop) ? 'none' : 'block'
-          }
+          waitForElm('.sticky-topic-container').then((ele) => {
+            ele.style.display = Boolean(starItem.hideTop) ? 'none' : 'block'
+          })
           // 隐藏作业
           waitForElm('.checkins-and-tasks').then((ele) => {
             ele.style.display = Boolean(starItem.hideWork) ? 'none' : 'flex'
@@ -698,17 +700,20 @@
 
   const target = document.querySelector('.main-content-container')
   const observer = new MutationObserver(function (mutations) {
+    // console.log('mutations: ', mutations)
     starId = location.href.split('/').at(-1)
-    handleSettingState()
-    handleGlobalSettingState()
-    globalSettingContent()
+
+    handleStarSettingData()
+    handleGlobalSettingData()
+
+    // handleSettingState()
+    // handleGlobalSettingState()
+    // globalSettingContent()
   })
 
-  if (target) {
-    observer.observe(target, {
-      childList: true,
-    })
-  }
+  observer.observe(target, {
+    childList: true,
+  })
   //#endregion
 
   function waitForElm(selector) {
@@ -745,8 +750,13 @@
   window.addEventListener('pushState', function (e) {
     // console.log('change pushState', location.href.split('/').at(-1))
   })
+  waitForElm('.group-list').then((e) => {
+    // handleStarSettingData()
+    // handleGlobalSettingData()
+  })
   window.addEventListener('replaceState', function (e) {
     waitForElm('.group-list').then(() => {
+      console.log('e: ', e)
       handleStarSettingData()
       handleGlobalSettingData()
     })
