@@ -332,40 +332,39 @@
   let saveStarInfo = [] //拿到每次最新数据信息
 
   function handleStarSettingData() {
-    const startInfo = document.querySelectorAll('.group-list a')
-    const localSaveStarData = JSON.parse(localStorage.getItem('saveStarInfo'))
-
-    let tbodyContent = ''
-
-    if (saveStarInfo.length) {
-      handleSettingState(startInfo) //实时设置
-      return
-    }
-    saveStarInfo = Array.from(startInfo).map((item) => {
-      let starId = item.href.split('/').at(-1)
-      let isExistSetting = {}
-
-      // 本地存的有就用本地的，没有直接添加新的
-      if (localSaveStarData?.length) {
-        isExistSetting = localSaveStarData.find((element) => element.id === starId)
+    waitForElm('.group-list').then(() => {
+      const startInfo = document.querySelectorAll('.group-list a')
+      const localSaveStarData = JSON.parse(localStorage.getItem('saveStarInfo'))
+      let tbodyContent = ''
+      if (saveStarInfo.length) {
+        handleSettingState(startInfo) //实时设置
+        return
       }
+      saveStarInfo = Array.from(startInfo).map((item) => {
+        let starId = item.href.split('/').at(-1)
+        let isExistSetting = {}
 
-      return {
-        id: isExistSetting?.id ?? starId,
-        name: isExistSetting?.name ?? item.firstChild.nodeValue,
-        show: isExistSetting?.show ?? true,
-        autoExpand: isExistSetting?.autoExpand ?? false,
-        showInformNumber: isExistSetting?.showInformNumber ?? true,
-        hideTop: isExistSetting?.hideTop ?? false,
-        hideWork: isExistSetting?.hideWork ?? false,
-        hidePublicationTheme: isExistSetting?.hidePublicationTheme ?? false,
-      }
-    })
+        // 本地存的有就用本地的，没有直接添加新的
+        if (localSaveStarData?.length) {
+          isExistSetting = localSaveStarData.find((element) => element.id === starId)
+        }
 
-    handleSettingState(startInfo) //实时设置class="start-title"
+        return {
+          id: isExistSetting?.id ?? starId,
+          name: isExistSetting?.name ?? item.firstChild.nodeValue,
+          show: isExistSetting?.show ?? true,
+          autoExpand: isExistSetting?.autoExpand ?? false,
+          showInformNumber: isExistSetting?.showInformNumber ?? true,
+          hideTop: isExistSetting?.hideTop ?? false,
+          hideWork: isExistSetting?.hideWork ?? false,
+          hidePublicationTheme: isExistSetting?.hidePublicationTheme ?? false,
+        }
+      })
 
-    saveStarInfo.forEach((item) => {
-      tbodyContent += `
+      handleSettingState(startInfo) //实时设置class="start-title"
+
+      saveStarInfo.forEach((item) => {
+        tbodyContent += `
       <tr>
       <td style="width: 110px;">${item.name}</td>
       <td ><input class="showSingleSelectCheckbox start-title" type="checkbox" ${item.show && 'checked'} /></td>
@@ -386,10 +385,11 @@
       } /></td>
     </tr>
       `
+      })
+      // localStorage.setItem('saveStarInfo', JSON.stringify(saveStarInfo))
+      tbody.innerHTML = tbodyContent
+      handleSelectedState() //处理选中状态
     })
-    // localStorage.setItem('saveStarInfo', JSON.stringify(saveStarInfo))
-    tbody.innerHTML = tbodyContent
-    handleSelectedState() //处理选中状态
   }
 
   //#region 全选功能
@@ -599,11 +599,19 @@
   // 全局设置
   function handleGlobalSettingState() {
     // 隐藏滚动条
-    let leftScroll = document.querySelector('.group-list-wrapper')
-    let rightScroll = document.querySelector('.group-preview-wrapper')
-    let scrollerArray = [leftScroll, rightScroll]
-    scrollerArray.forEach((item) => {
-      item.style.overflowX = saveGlobalStarInfo.hideScroller ? 'hidden' : 'auto'
+    // let leftScroll = document.querySelector('.group-list-wrapper')
+    // let rightScroll = document.querySelector('.group-preview-wrapper')
+    // let scrollerArray = [leftScroll, rightScroll]
+    // scrollerArray.forEach((item) => {
+    //   item.style.overflowX = saveGlobalStarInfo.hideScroller ? 'hidden' : 'auto'
+    // })
+
+    //隐藏滚动条
+    waitForElm('.group-list-wrapper').then((ele) => {
+      ele.style.overflowX = saveGlobalStarInfo.hideScroller ? 'hidden' : 'auto'
+    })
+    waitForElm('.group-preview-wrapper').then((ele) => {
+      ele.style.overflowX = saveGlobalStarInfo.hideScroller ? 'hidden' : 'auto'
     })
 
     //隐藏通知数字
@@ -657,11 +665,11 @@
     let left = '1152px'
     if (saveGlobalStarInfo.hideLowResolution) {
       if (window.innerWidth < 1600) {
-        left = '1240px'
-        mainContainer.style.marginRight = '0px'
+        left = '1130px'
+        mainContainer.style.marginRight = '110px'
       } else {
-        mainContainer.style.marginRight = '0px'
-        left = '1450px'
+        mainContainer.style.marginRight = '110px'
+        left = '1330px'
       }
     } else {
       if (window.innerWidth < 1600) {
@@ -669,7 +677,7 @@
         left = '1240px'
       } else {
         mainContainer.style.marginRight = '310px'
-        left = '1450px'
+        left = '1430px'
       }
     }
     rightSideBar.style.marginLeft = left
