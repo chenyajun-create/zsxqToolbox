@@ -170,7 +170,9 @@
 }
   `,
   )
-
+  // GM_addStyle(
+  //   '@media screen and (max-width: 1600px) {.group-preview-container{display: none !important}.main-content-container{margin-right:110px !important}.month-selector{margin-left:1122px !important}}',
+  // )
   //#region 遮罩层
   const overlayDom = document.createElement('div')
   overlayDom.classList.add('myOverlay')
@@ -651,21 +653,26 @@
   //设置时间线位置
   function setTimeLineLeft() {
     let rightSideBar = document.querySelector('.month-selector')
-    let width = '1152px'
+    let mainContainer = document.querySelector('.main-content-container')
+    let left = '1152px'
     if (saveGlobalStarInfo.hideLowResolution) {
       if (window.innerWidth < 1600) {
-        width = '952px'
+        left = '1240px'
+        mainContainer.style.marginRight = '0px'
       } else {
-        width = '1152px'
+        mainContainer.style.marginRight = '0px'
+        left = '1450px'
       }
     } else {
       if (window.innerWidth < 1600) {
-        width = '1232px'
+        mainContainer.style.marginRight = '310px'
+        left = '1240px'
       } else {
-        width = '1432px'
+        mainContainer.style.marginRight = '310px'
+        left = '1450px'
       }
     }
-    rightSideBar.style.marginLeft = width
+    rightSideBar.style.marginLeft = left
   }
   // 检测屏幕变化
   const handleResize = () => {
@@ -763,23 +770,24 @@
   }
 
   const target = document.querySelector('.main-content-container')
+  waitForElm('.main-content-container').then(() => {
+    const observer = new MutationObserver(function (mutations) {
+      mutationsList = mutations
+      starId = location.href.split('/').at(-1)
 
-  const observer = new MutationObserver(function (mutations) {
-    mutationsList = mutations
-    starId = location.href.split('/').at(-1)
-
-    handleStarSettingData()
-    handleGlobalSettingData()
-    // handleSettingState()
-    // handleGlobalSettingState()
-    // globalSettingContent()
+      handleStarSettingData()
+      handleGlobalSettingData()
+      // handleSettingState()
+      // handleGlobalSettingState()
+      // globalSettingContent()
+    })
+    if (target) {
+      observer.observe(target, {
+        childList: true,
+      })
+    }
   })
 
-  if (target) {
-    observer.observe(target, {
-      childList: true,
-    })
-  }
   //#endregion
 
   function waitForElm(selector) {
