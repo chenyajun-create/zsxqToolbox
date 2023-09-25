@@ -332,8 +332,7 @@
   let saveStarInfo = [] //拿到每次最新数据信息
 
   function handleStarSettingData() {
-    waitForElm('.group-list').then((ele) => {
-      console.log('ele: ', ele)
+    waitForElm('.group-list').then(() => {
       const startInfo = document.querySelectorAll('.group-list a')
       const localSaveStarData = JSON.parse(localStorage.getItem('saveStarInfo'))
       let tbodyContent = ''
@@ -485,6 +484,7 @@
     let showhideScroller = localGlobalStarData !== null ? localGlobalStarData.hideScroller : false
     let showhideLikedTheme = localGlobalStarData !== null ? localGlobalStarData.hideLikedTheme : false
     let showMesInformNum = localGlobalStarData !== null ? localGlobalStarData.hideMesInformNum : false
+    let showManagementBackend = localGlobalStarData !== null ? localGlobalStarData.hideManagementBackend : false
     tab2Content.innerHTML = `
     <div style="display: flex;gap: 50px;flex-wrap:wrap">
       <div style="display:flex;align-items:center;margin-right:70px">
@@ -507,6 +507,13 @@
       <div style="display:flex;align-items:center;margin-right:70px">
       <span style="font-size: 15px;">隐藏消息通知数字</span>
       <input class="global-checked-box" id="hideMesInformNum" type="checkbox" ${showMesInformNum && 'checked'} />
+      </div>
+
+      <div style="display:flex;align-items:center;margin-right:70px">
+      <span style="font-size: 15px;">隐藏管理后台按钮</span>
+      <input class="global-checked-box" id="hideManagementBackend" type="checkbox" ${
+        showManagementBackend && 'checked'
+      } />
       </div>
 
       </div>
@@ -584,11 +591,13 @@
     const hiddenSroller = overlayDom.querySelector('#hiddenSroller')
     const hideLikedTheme = overlayDom.querySelector('#hideLikedTheme')
     const hideMesInformNum = overlayDom.querySelector('#hideMesInformNum')
+    const hideManagementBackend = overlayDom.querySelector('#hideManagementBackend')
     saveGlobalStarInfo = {
       hideLowResolution: hiddenLowResolution.checked,
       hideScroller: hiddenSroller.checked,
       hideLikedTheme: hideLikedTheme.checked,
       hideMesInformNum: hideMesInformNum.checked,
+      hideManagementBackend: hideManagementBackend.checked,
     }
 
     handleGlobalSettingState()
@@ -630,6 +639,11 @@
     waitForElm('.main-content-container').then((ele) => {
       let state = saveGlobalStarInfo.hideLikedTheme ? 'none' : 'block'
       hasLikedData(state)
+    })
+
+    //隐藏后台管理按钮
+    waitForElm('.redirect').then((ele) => {
+      ele.style.display = saveGlobalStarInfo.hideManagementBackend ? 'none' : 'block'
     })
   }
   let mutationsList = []
