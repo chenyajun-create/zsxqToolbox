@@ -332,7 +332,8 @@
   let saveStarInfo = [] //拿到每次最新数据信息
 
   function handleStarSettingData() {
-    waitForElm('.group-list').then(() => {
+    waitForElm('.group-list').then((ele) => {
+      console.log('ele: ', ele)
       const startInfo = document.querySelectorAll('.group-list a')
       const localSaveStarData = JSON.parse(localStorage.getItem('saveStarInfo'))
       let tbodyContent = ''
@@ -777,23 +778,17 @@
     })
   }
 
-  const target = document.querySelector('.main-content-container')
-  waitForElm('.main-content-container').then(() => {
+  waitForElm('.main-content-container').then((element) => {
     const observer = new MutationObserver(function (mutations) {
       mutationsList = mutations
       starId = location.href.split('/').at(-1)
 
       handleStarSettingData()
       handleGlobalSettingData()
-      // handleSettingState()
-      // handleGlobalSettingState()
-      // globalSettingContent()
     })
-    if (target) {
-      observer.observe(target, {
-        childList: true,
-      })
-    }
+    observer.observe(element, {
+      childList: true,
+    })
   })
 
   //#endregion
